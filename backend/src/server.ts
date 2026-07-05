@@ -1,8 +1,17 @@
 import app from "./app";
-import { env } from "./config/env";
+import { connectDatabase } from "./config/database";
+import dotenv from "dotenv";
 
-app.listen(env.PORT, () => {
-  console.log(
-    `🚀 Server running in ${env.NODE_ENV} mode on port ${env.PORT}`
-  );
-});
+dotenv.config();
+
+const PORT = process.env.PORT || 5000;
+
+const startServer = async () => {
+  await connectDatabase();
+
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running at http://localhost:${PORT}`);
+  });
+};
+
+startServer();
