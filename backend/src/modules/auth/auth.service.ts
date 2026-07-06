@@ -1,7 +1,7 @@
-import bcrypt from "bcrypt";
+import { hashPassword } from "./auth.utils";
 import User from "../user/user.model";
 import Employee from "../employee/employee.model";
-
+import ApiError from "../../utils/ApiError";
 export const registerUser = async (
   employeeId: string,
   email: string,
@@ -14,7 +14,7 @@ export const registerUser = async (
   });
 
   if (!employee) {
-    throw new Error("Employee not found");
+    throw new ApiError(404, "Employee not found");
   }
 
   const existingUser = await User.findOne({
@@ -22,10 +22,10 @@ export const registerUser = async (
   });
 
   if (existingUser) {
-    throw new Error("Email already exists");
+    throw new ApiError(409, "Email already exists");
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const hashedPassword = await hashPassword(password);
 
   const user = await User.create({
 

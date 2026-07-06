@@ -1,12 +1,17 @@
 import { z } from "zod";
 
 export const registerSchema = z.object({
-  employeeId: z.string(),
+  employeeId: z
+    .string()
+    .min(1, "Employee ID is required"),
 
-  email: z.string().email(),
+  email: z
+    .string()
+    .email("Invalid email address"),
 
-  password: z.string()
-    .min(8, "Password must be at least 8 characters")
+  password: z
+    .string()
+    .min(8, "Password must contain at least 8 characters")
     .regex(/[A-Z]/, "One uppercase letter required")
     .regex(/[a-z]/, "One lowercase letter required")
     .regex(/[0-9]/, "One number required")

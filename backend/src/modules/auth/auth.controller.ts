@@ -1,57 +1,38 @@
 import { Request, Response } from "express";
 
+import asyncHandler from "../../utils/asyncHandler";
+import ApiResponse from "../../utils/ApiResponse";
+
 import * as authService from "./auth.service";
 
-export const register = async (
-  req: Request,
-  res: Response
-) => {
-
-  try {
-
-    const {
-
-      employeeId,
-      email,
-      password,
-      role
-
-    } = req.body;
+export const register = asyncHandler(
+  async (req: Request, res: Response) => {
 
     const user = await authService.registerUser(
 
-      employeeId,
+      req.body.employeeId,
 
-      email,
+      req.body.email,
 
-      password,
+      req.body.password,
 
-      role
+      req.body.role
 
     );
 
-    res.status(201).json({
+    return res.status(201).json(
 
-      success: true,
+      new ApiResponse(
 
-      message: "User Registered Successfully",
+        201,
 
-      data: user
+        user,
 
-    });
+        "User registered successfully"
 
-  }
+      )
 
-  catch (error: any) {
-
-    res.status(400).json({
-
-      success: false,
-
-      message: error.message
-
-    });
+    );
 
   }
-
-};
+);
