@@ -2,6 +2,8 @@ import { hashPassword } from "./auth.utils";
 import User from "../user/user.model";
 import Employee from "../employee/employee.model";
 import ApiError from "../../utils/ApiError";
+import { comparePassword } from "./auth.utils";
+import { generateAccessToken } from "../../utils/jwt";
 export const registerUser = async (
   employeeId: string,
   email: string,
@@ -41,4 +43,35 @@ export const registerUser = async (
 
   return user;
 
+};
+export const loginUser = async (
+  email: string,
+  password: string
+) => {
+
+  const user = await User.findOne({ email }).populate("employee");
+
+  if (!user) {
+    throw new ApiError(401, "Invalid email or password");
+  }
+
+  const isPasswordValid = await comparePassword(
+    password,
+    user.password
+  );
+
+  if (!isPasswordValid) {
+    throw new ApiError(401, "Invalid email or password");
+  }
+
+  const token = generateAccessToken({
+    userId: user._id.toString(),
+    email: user.email,
+    role: user.role,
+  });
+
+  return {
+    user,
+    token,
+  };
 };

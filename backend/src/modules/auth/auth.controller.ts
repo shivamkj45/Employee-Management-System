@@ -36,3 +36,21 @@ export const register = asyncHandler(
 
   }
 );
+export const login = asyncHandler(
+  async (req: Request, res: Response) => {
+
+    const result = await authService.loginUser(
+      req.body.email,
+      req.body.password
+    );
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        result,
+        "Login successful"
+      )
+    );
+
+  }
+);
