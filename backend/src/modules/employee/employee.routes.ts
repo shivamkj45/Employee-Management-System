@@ -9,21 +9,25 @@ import {
 
 import { validateEmployee } from "../employee/employee.validator";
 import { authenticate } from "../../middleware/auth.middleware";
+import { authorize } from "../../middleware/authorize.middleware";
 const router = Router();
 
 // Create Employee
-router.post("/", validateEmployee, createEmployee);
+router.post("/", authenticate,authorize("admin","hr"),validateEmployee, createEmployee);
 
 // Get All Employees
-router.get("/", authenticate, getAllEmployees);
+router.get("/", authenticate,authorize("admin", "hr", "manager"), getAllEmployees);
 
 // Get Employee By ID
-router.get("/:id", getEmployeeById);
+router.get("/:id",authenticate,
+  authorize("admin", "hr", "manager", "employee"), getEmployeeById);
 
 // Update Employee
-router.put("/:id", validateEmployee, updateEmployee);
+router.put("/:id",authenticate,
+  authorize("admin", "hr"), validateEmployee, updateEmployee);
 
 // Delete Employee
-router.delete("/:id", deleteEmployee);
+router.delete("/:id",authenticate,
+  authorize("admin"), deleteEmployee);
 
 export default router;
