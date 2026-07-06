@@ -1,12 +1,13 @@
 import express from "express";
 import healthRouter from "./routes/health.routes";
-import employeeRoutes from "./routes/employee.routes";
+import employeeRoutes from "./modules/employee/employee.routes";
 import { errorHandler } from "./middleware/error.middleware";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import compression from "compression";
 import rateLimit from "express-rate-limit";
+import authRoutes from "./modules/auth/auth.routes";
 const app = express();
 
 app.use(express.json());
@@ -29,4 +30,5 @@ app.use(limiter);
 app.use("/api/v1", healthRouter);
 app.use("/api/v1/employees", employeeRoutes);
 app.use(errorHandler);
+app.use("/api/v1/auth", authRoutes);
 export default app;
