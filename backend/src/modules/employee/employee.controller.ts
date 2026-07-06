@@ -1,113 +1,97 @@
 import { Request, Response } from "express";
-import * as employeeService from "./employee.service";
-// Create Employee
-export const createEmployee = async (req: Request, res: Response) => {
-  try {
-    const employee = await employeeService.createEmployee(req.body);
 
-    res.status(201).json({
-      success: true,
-      message: "Employee created successfully",
-      data: employee,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to create employee",
-    });
-  }
-};
+import * as employeeService from "./employee.service";
+
+import asyncHandler from "../../utils/asyncHandler";
+import ApiResponse from "../../utils/ApiResponse";
+import ApiError from "../../utils/ApiError";
+
+// Create Employee
+export const createEmployee = asyncHandler(async (req: Request, res: Response) => {
+
+  const employee = await employeeService.createEmployee(req.body);
+
+  return res.status(201).json(
+    new ApiResponse(
+      201,
+      employee,
+      "Employee created successfully"
+    )
+  );
+
+});
 
 // Get All Employees
-export const getAllEmployees = async (req: Request, res: Response) => {
-  try {
-    const employees = await employeeService.getAllEmployees();
+export const getAllEmployees = asyncHandler(async (req: Request, res: Response) => {
 
-    res.status(200).json({
-      success: true,
-      count: employees.length,
-      data: employees,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch employees",
-    });
-  }
-};
+  const employees = await employeeService.getAllEmployees();
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      employees,
+      "Employees fetched successfully"
+    )
+  );
+
+});
 
 // Get Employee By ID
-export const getEmployeeById = async (req: Request, res: Response) => {
-  try {
-    const employee = await employeeService.getEmployeeById(req.params.id);
+export const getEmployeeById = asyncHandler(async (req: Request, res: Response) => {
 
-    if (!employee) {
-      return res.status(404).json({
-        success: false,
-        message: "Employee not found",
-      });
-    }
+  const employee = await employeeService.getEmployeeById(req.params.id);
 
-    res.status(200).json({
-      success: true,
-      data: employee,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch employee",
-    });
+  if (!employee) {
+    throw new ApiError(404, "Employee not found");
   }
-};
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      employee,
+      "Employee fetched successfully"
+    )
+  );
+
+});
 
 // Update Employee
-export const updateEmployee = async (req: Request, res: Response) => {
-  try {
-    const employee = await employeeService.updateEmployee(
-      req.params.id,
-      req.body
-    );
+export const updateEmployee = asyncHandler(async (req: Request, res: Response) => {
 
-    if (!employee) {
-      return res.status(404).json({
-        success: false,
-        message: "Employee not found",
-      });
-    }
+  const employee = await employeeService.updateEmployee(
+    req.params.id,
+    req.body
+  );
 
-    res.status(200).json({
-      success: true,
-      message: "Employee updated successfully",
-      data: employee,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to update employee",
-    });
+  if (!employee) {
+    throw new ApiError(404, "Employee not found");
   }
-};
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      employee,
+      "Employee updated successfully"
+    )
+  );
+
+});
 
 // Delete Employee
-export const deleteEmployee = async (req: Request, res: Response) => {
-  try {
-    const employee = await employeeService.deleteEmployee(req.params.id);
+export const deleteEmployee = asyncHandler(async (req: Request, res: Response) => {
 
-    if (!employee) {
-      return res.status(404).json({
-        success: false,
-        message: "Employee not found",
-      });
-    }
+  const employee = await employeeService.deleteEmployee(req.params.id);
 
-    res.status(200).json({
-      success: true,
-      message: "Employee deleted successfully",
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to delete employee",
-    });
+  if (!employee) {
+    throw new ApiError(404, "Employee not found");
   }
-};
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      null,
+      "Employee deleted successfully"
+    )
+  );
+
+});
