@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema,model, Document } from "mongoose";
 
 /**
  * TypeScript interface representing an Employee document.
@@ -10,7 +10,7 @@ export interface IEmployee extends Document {
   email: string;
   phone: string;
   designation: string;
-  department: string;
+  department: Schema.Types.ObjectId;
   salary: number;
   joiningDate: Date;
   status: "Active" | "Inactive";
@@ -58,8 +58,9 @@ const employeeSchema = new Schema<IEmployee>(
     },
 
     department: {
-      type: String,
-      required: true,
+       type: Schema.Types.ObjectId,
+       ref: "Department",
+       required: true,
     },
 
     salary: {

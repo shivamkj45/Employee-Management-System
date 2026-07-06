@@ -10,7 +10,7 @@ export const createEmployee = async (
 
 // Get All Employees
 export const getAllEmployees = async (): Promise<IEmployee[]> => {
-  const employees = await Employee.find().sort({ createdAt: -1 });
+  const employees = await Employee.find().populate("department").sort({ createdAt: -1 });
   return employees;
 };
 
@@ -18,7 +18,7 @@ export const getAllEmployees = async (): Promise<IEmployee[]> => {
 export const getEmployeeById = async (
   id: string
 ): Promise<IEmployee | null> => {
-  const employee = await Employee.findById(id);
+  const employee = await Employee.findById(id).populate("department");
   return employee;
 };
 

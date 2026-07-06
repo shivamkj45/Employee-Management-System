@@ -24,7 +24,7 @@ export const createEmployeeSchema = z.object({
 
   designation: z.string(),
 
-  department: z.string(),
+  department: z.string().min(1, "Department is required"),
 
   salary: z
     .number()
