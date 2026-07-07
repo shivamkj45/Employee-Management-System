@@ -25,3 +25,36 @@ export const applyLeave = asyncHandler(
     );
   }
 );
+export const approveLeave = asyncHandler(
+  async (req: Request, res: Response) => {
+
+    const leave = await leaveService.approveLeave(
+      req.params.id
+    );
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        leave,
+        "Leave approved successfully"
+      )
+    );
+  }
+);
+
+export const rejectLeave = asyncHandler(
+  async (req: Request, res: Response) => {
+
+    const leave = await leaveService.rejectLeave(
+      req.params.id
+    );
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        leave,
+        "Leave rejected successfully"
+      )
+    );
+  }
+);

@@ -63,3 +63,51 @@ export const applyLeave = async (
 
   return leave;
 };
+
+export const approveLeave = async (
+  leaveId: string
+): Promise<ILeave> => {
+
+  const leave = await Leave.findById(leaveId);
+
+  if (!leave) {
+    throw new ApiError(404, "Leave request not found.");
+  }
+
+  if (leave.status !== "Pending") {
+    throw new ApiError(
+      400,
+      `Leave request is already ${leave.status}.`
+    );
+  }
+
+  leave.status = "Approved";
+
+  await leave.save();
+
+  return leave;
+};
+
+export const rejectLeave = async (
+  leaveId: string
+): Promise<ILeave> => {
+
+  const leave = await Leave.findById(leaveId);
+
+  if (!leave) {
+    throw new ApiError(404, "Leave request not found.");
+  }
+
+  if (leave.status !== "Pending") {
+    throw new ApiError(
+      400,
+      `Leave request is already ${leave.status}.`
+    );
+  }
+
+  leave.status = "Rejected";
+
+  await leave.save();
+
+  return leave;
+};

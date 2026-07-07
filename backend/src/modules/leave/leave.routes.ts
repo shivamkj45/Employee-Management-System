@@ -1,7 +1,7 @@
 import { Router } from "express";
 
-import { applyLeave } from "./leave.controller";
-
+import { applyLeave, approveLeave,rejectLeave } from "./leave.controller";
+import { authorize } from "../../middleware/authorize.middleware";
 import validate from "../../middleware/validate";
 
 import { applyLeaveSchema } from "./leave.validator";
@@ -16,5 +16,17 @@ router.post(
   validate(applyLeaveSchema),
   applyLeave
 );
+router.patch(
+  "/:id/approve",
+  authenticate,
+  authorize("admin", "hr"),
+  approveLeave
+);
 
+router.patch(
+  "/:id/reject",
+  authenticate,
+  authorize("admin", "hr"),
+  rejectLeave
+);
 export default router;
