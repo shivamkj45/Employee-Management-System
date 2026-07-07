@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { checkIn,checkOut } from "./attendance.controller";
+import { checkIn,checkOut,getTodayAttendance } from "./attendance.controller";
 
 import validate from "../../middleware/validate";
 
@@ -21,6 +21,11 @@ router.post(
   authenticate,
   validate(checkInSchema),
   checkOut
+);
+router.get(
+  "/today",
+  authenticate,
+  getTodayAttendance
 );
 
 export default router;

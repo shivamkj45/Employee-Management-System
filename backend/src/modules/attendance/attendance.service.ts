@@ -77,3 +77,20 @@ export const checkOut = async (
 
   return attendance;
 };
+export const getTodayAttendance = async (): Promise<IAttendance[]> => {
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+
+  return Attendance.find({
+    date: {
+      $gte: today,
+      $lt: tomorrow,
+    },
+  })
+    .populate("employee")
+    .sort({ checkIn: 1 });
+};

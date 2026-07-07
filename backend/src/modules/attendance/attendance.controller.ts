@@ -38,3 +38,18 @@ export const checkOut = asyncHandler(
     );
   }
 );
+export const getTodayAttendance = asyncHandler(
+  async (req, res) => {
+
+    const attendance =
+      await attendanceService.getTodayAttendance();
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        attendance,
+        "Today's attendance fetched successfully"
+      )
+    );
+  }
+);

@@ -6,6 +6,7 @@ import authRoutes from "../modules/auth/auth.routes";
 import employeeRoutes from "../modules/employee/employee.routes";
 import departmentRoutes from "../modules/department/department.routes";
 import attendanceRoutes from "../modules/attendance/attendance.routes";
+import leaveRoutes from "../modules/leave/leave.routes";
 const router = Router();
 
 
@@ -21,4 +22,7 @@ router.use("/employees", employeeRoutes);
 router.use("/departments", departmentRoutes);
 // Attendance
 router.use("/attendance", attendanceRoutes);
+//Leave
+router.use("/leave", leaveRoutes);
+
 export default router;
