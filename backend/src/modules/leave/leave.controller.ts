@@ -4,6 +4,7 @@ import asyncHandler from "../../utils/asyncHandler";
 import ApiResponse from "../../utils/ApiResponse";
 
 import * as leaveService from "./leave.service";
+import ApiError from "../../utils/ApiError";
 
 export const applyLeave = asyncHandler(
   async (req: Request, res: Response) => {
@@ -54,6 +55,42 @@ export const rejectLeave = asyncHandler(
         200,
         leave,
         "Leave rejected successfully"
+      )
+    );
+  }
+);
+
+export const getAllLeaves = asyncHandler(
+  async (req: Request, res: Response) => {
+
+    const leaves = await leaveService.getAllLeaves();
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        leaves,
+        "Leave requests fetched successfully"
+      )
+    );
+  }
+);
+
+export const getLeaveById = asyncHandler(
+  async (req: Request, res: Response) => {
+
+    const leave = await leaveService.getLeaveById(
+      req.params.id
+    );
+
+    if (!leave) {
+      throw new ApiError(404, "Leave request not found.");
+    }
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        leave,
+        "Leave request fetched successfully"
       )
     );
   }

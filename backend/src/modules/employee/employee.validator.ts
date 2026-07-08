@@ -60,3 +60,28 @@ export const validateEmployee = (
     });
   }
 };
+
+export const updateEmployeeSchema = createEmployeeSchema.partial();
+export const validateEmployeeUpdate = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    updateEmployeeSchema.parse(req.body);
+    next();
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors: error.issues,
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+};

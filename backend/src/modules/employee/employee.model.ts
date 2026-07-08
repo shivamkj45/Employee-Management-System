@@ -14,7 +14,7 @@ export interface IEmployee extends Document {
   salary: number;
   joiningDate: Date;
   status: "Active" | "Inactive";
-  role: "Admin" | "HR" | "Employee";
+  role: "admin" | "hr" | "manager" | "employee";
   address: string;
 }
 
@@ -82,8 +82,8 @@ const employeeSchema = new Schema<IEmployee>(
 
     role: {
       type: String,
-      enum: ["Admin", "HR", "Employee"],
-      default: "Employee",
+      enum: ["admin", "hr", "manager", "employee"],
+      default: "employee",
     },
 
     address: {

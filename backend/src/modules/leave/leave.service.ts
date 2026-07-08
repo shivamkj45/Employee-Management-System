@@ -111,3 +111,17 @@ export const rejectLeave = async (
 
   return leave;
 };
+
+// Get All Leave Requests
+export const getAllLeaves = async (): Promise<ILeave[]> => {
+  return Leave.find()
+    .populate("employee")
+    .sort({ createdAt: -1 });
+};
+
+// Get Leave By ID
+export const getLeaveById = async (
+  leaveId: string
+): Promise<ILeave | null> => {
+  return Leave.findById(leaveId).populate("employee");
+};

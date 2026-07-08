@@ -9,27 +9,30 @@ import ApiError from "../../utils/ApiError";
 // Create Employee
 export const createEmployee = asyncHandler(async (req: Request, res: Response) => {
 
-  const employee = await employeeService.createEmployee(req.body);
+  const result = await employeeService.createEmployee(req.body);
 
   return res.status(201).json(
-    new ApiResponse(
-      201,
-      employee,
-      "Employee created successfully"
-    )
-  );
+  new ApiResponse(
+    201,
+    {
+      employee: result.employee,
+      temporaryPassword: result.temporaryPassword,
+    },
+    "Employee created successfully"
+  )
+);
 
 });
 
 // Get All Employees
 export const getAllEmployees = asyncHandler(async (req: Request, res: Response) => {
 
-  const employees = await employeeService.getAllEmployees();
+  const result = await employeeService.getAllEmployees(req.query);
 
   return res.status(200).json(
     new ApiResponse(
       200,
-      employees,
+      result,
       "Employees fetched successfully"
     )
   );

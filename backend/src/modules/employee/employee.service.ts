@@ -1,17 +1,123 @@
-import Employee, { IEmployee } from "../employee/employee.model";
+import mongoose from "mongoose";
+import bcrypt from "bcrypt";
+
+import Employee, { IEmployee } from "./employee.model";
+import User from "../user/user.model";
+
+import { generateTemporaryPassword } from "../../utils/password";
 
 // Create Employee
+// Create Employee + User Account
 export const createEmployee = async (
   employeeData: Partial<IEmployee>
-): Promise<IEmployee> => {
-  const employee = await Employee.create(employeeData);
-  return employee;
+): Promise<{ employee: IEmployee; temporaryPassword: string }> => {
+  const session = await mongoose.startSession();
+
+  session.startTransaction();
+
+  try {
+    // Check duplicate Employee ID
+    const employeeIdExists = await Employee.findOne({
+      employeeId: employeeData.employeeId,
+    }).session(session);
+
+    if (employeeIdExists) {
+      throw new Error("Employee ID already exists.");
+    }
+
+    // Check duplicate Email
+    const emailExists = await Employee.findOne({
+      email: employeeData.email,
+    }).session(session);
+
+    if (emailExists) {
+      throw new Error("Employee email already exists.");
+    }
+
+    // Create Employee
+    const employee = await Employee.create([employeeData], { session });
+
+    // Generate temporary password
+    const temporaryPassword = generateTemporaryPassword();
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
+
+    // Create User
+    await User.create(
+      [
+        {
+          employee: employee[0]._id,
+          email: employee[0].email,
+          password: hashedPassword,
+          role: employee[0].role,
+        },
+      ],
+      { session }
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return {
+      employee: employee[0],
+      temporaryPassword,
+    };
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+
+    throw error;
+  }
 };
 
 // Get All Employees
-export const getAllEmployees = async (): Promise<IEmployee[]> => {
-  const employees = await Employee.find().populate("department").sort({ createdAt: -1 });
-  return employees;
+export const getAllEmployees = async (query: any) => {
+  const {
+    page = "1",
+    limit = "10",
+    search = "",
+    department,
+    designation,
+    sort = "-createdAt",
+  } = query;
+
+  const pageNumber = Number(page);
+  const limitNumber = Number(limit);
+
+  const filter: any = {};
+
+  if (search) {
+    filter.$or = [
+      { firstName: { $regex: search, $options: "i" } },
+      { lastName: { $regex: search, $options: "i" } },
+      { email: { $regex: search, $options: "i" } },
+      { employeeId: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  if (department) {
+    filter.department = department;
+  }
+
+  if (designation) {
+    filter.designation = designation;
+  }
+
+  const totalEmployees = await Employee.countDocuments(filter);
+
+  const employees = await Employee.find(filter)
+    .populate("department")
+    .sort(sort)
+    .skip((pageNumber - 1) * limitNumber)
+    .limit(limitNumber);
+
+  return {
+    employees,
+    totalEmployees,
+    currentPage: pageNumber,
+    totalPages: Math.ceil(totalEmployees / limitNumber),
+  };
 };
 
 // Get Employee By ID
@@ -27,18 +133,49 @@ export const updateEmployee = async (
   id: string,
   employeeData: Partial<IEmployee>
 ): Promise<IEmployee | null> => {
-  const updatedEmployee = await Employee.findByIdAndUpdate(
-    id,
-    employeeData,
-    {
-      new: true,          // Return updated document
-      runValidators: true // Validate updated fields
+  const session = await mongoose.startSession();
+
+  session.startTransaction();
+
+  try {
+    // Update Employee
+    const updatedEmployee = await Employee.findByIdAndUpdate(
+      id,
+      employeeData,
+      {
+        new: true,
+        runValidators: true,
+        session,
+      }
+    );
+
+    if (!updatedEmployee) {
+      throw new Error("Employee not found.");
     }
-  );
 
-  return updatedEmployee;
+    // Synchronize User email & role
+    await User.findOneAndUpdate(
+      { employee: updatedEmployee._id },
+      {
+        email: updatedEmployee.email,
+        role: updatedEmployee.role,
+      },
+      { session }
+    );
+
+    await session.commitTransaction();
+
+    session.endSession();
+
+    return updatedEmployee;
+  } catch (error) {
+    await session.abortTransaction();
+
+    session.endSession();
+
+    throw error;
+  }
 };
-
 // Delete Employee
 export const deleteEmployee = async (
   id: string
