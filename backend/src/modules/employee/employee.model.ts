@@ -1,5 +1,5 @@
 import mongoose, { Schema,model, Document } from "mongoose";
-
+import { UserRole } from "../../types/roles";
 /**
  * TypeScript interface representing an Employee document.
  */
@@ -10,11 +10,11 @@ export interface IEmployee extends Document {
   email: string;
   phone: string;
   designation: string;
-  department: Schema.Types.ObjectId;
+  department: mongoose.Types.ObjectId;
   salary: number;
   joiningDate: Date;
   status: "Active" | "Inactive";
-  role: "admin" | "hr" | "manager" | "employee";
+  role: UserRole;
   address: string;
 }
 

@@ -4,11 +4,12 @@ import Employee from "../employee/employee.model";
 import ApiError from "../../utils/ApiError";
 import { comparePassword } from "./auth.utils";
 import { generateAccessToken } from "../../utils/jwt";
+import { UserRole } from "../../types/roles";
 export const registerUser = async (
   employeeId: string,
   email: string,
   password: string,
-  role: "admin" | "hr" | "manager" | "employee"
+  role: UserRole
 ) => {
 
   const employee = await Employee.findOne({
@@ -54,6 +55,10 @@ export const loginUser = async (
   if (!user) {
     throw new ApiError(401, "Invalid email or password");
   }
+
+  if (!user.isActive) {
+  throw new ApiError(403, "Your account has been deactivated. Please contact HR.");
+}
 
   const isPasswordValid = await comparePassword(
     password,

@@ -5,11 +5,12 @@ import Employee, { IEmployee } from "./employee.model";
 import User from "../user/user.model";
 
 import { generateTemporaryPassword } from "../../utils/password";
-
+import ApiError from "../../utils/ApiError";
 // Create Employee
 // Create Employee + User Account
 export const createEmployee = async (
-  employeeData: Partial<IEmployee>
+  employeeData: Partial<IEmployee>,
+  customPassword?: string
 ): Promise<{ employee: IEmployee; temporaryPassword: string }> => {
   const session = await mongoose.startSession();
 
@@ -22,7 +23,7 @@ export const createEmployee = async (
     }).session(session);
 
     if (employeeIdExists) {
-      throw new Error("Employee ID already exists.");
+      throw new ApiError(409, "Employee ID already exists.");
     }
 
     // Check duplicate Email
@@ -31,14 +32,18 @@ export const createEmployee = async (
     }).session(session);
 
     if (emailExists) {
-      throw new Error("Employee email already exists.");
+      throw new ApiError(409, "Employee email already exists.");
     }
 
     // Create Employee
-    const employee = await Employee.create([employeeData], { session });
+    const [employee] = await Employee.create(
+  [employeeData],
+  { session }
+  );
 
     // Generate temporary password
-    const temporaryPassword = generateTemporaryPassword();
+    const temporaryPassword =
+    customPassword ?? generateTemporaryPassword();
 
     // Hash password
     const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
@@ -47,10 +52,10 @@ export const createEmployee = async (
     await User.create(
       [
         {
-          employee: employee[0]._id,
-          email: employee[0].email,
+          employee: employee._id,
+          email: employee.email,
           password: hashedPassword,
-          role: employee[0].role,
+          role: employee.role,
         },
       ],
       { session }
@@ -60,7 +65,7 @@ export const createEmployee = async (
     session.endSession();
 
     return {
-      employee: employee[0],
+      employee: employee,
       temporaryPassword,
     };
   } catch (error) {
@@ -150,18 +155,19 @@ export const updateEmployee = async (
     );
 
     if (!updatedEmployee) {
-      throw new Error("Employee not found.");
+      throw new ApiError(404, "Employee not found.");
     }
 
     // Synchronize User email & role
     await User.findOneAndUpdate(
-      { employee: updatedEmployee._id },
-      {
-        email: updatedEmployee.email,
-        role: updatedEmployee.role,
-      },
-      { session }
-    );
+  { employee: updatedEmployee._id },
+  {
+    email: updatedEmployee.email,
+    role: updatedEmployee.role,
+    isActive: updatedEmployee.status === "Active",
+  },
+  { session }
+);
 
     await session.commitTransaction();
 

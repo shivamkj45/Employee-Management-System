@@ -1,10 +1,10 @@
 import mongoose, { Schema, Document } from "mongoose";
-
+import { UserRole } from "../../types/roles";
 export interface IUser extends Document {
   employee: mongoose.Types.ObjectId;
   email: string;
   password: string;
-  role: "admin" | "hr" | "manager" | "employee";
+  role: UserRole;
   isActive: boolean;
   refreshToken?: string;
 }
