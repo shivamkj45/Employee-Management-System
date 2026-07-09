@@ -19,3 +19,49 @@ export const getDashboardSummary = asyncHandler(
     );
   }
 );
+export const getRecentEmployees = asyncHandler(
+  async (_req: Request, res: Response) => {
+
+    const employees =
+      await dashboardService.getRecentEmployees();
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        employees,
+        "Recent employees fetched successfully"
+      )
+    );
+  }
+);
+
+export const getDepartmentStats = asyncHandler(
+  async (_req: Request, res: Response) => {
+
+    const stats =
+      await dashboardService.getDepartmentStats();
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        stats,
+        "Department statistics fetched successfully"
+      )
+    );
+  }
+);
+export const getAttendanceTrend = asyncHandler(
+  async (_req: Request, res: Response) => {
+
+    const trend =
+      await dashboardService.getAttendanceTrend();
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        trend,
+        "Attendance trend fetched successfully"
+      )
+    );
+  }
+);

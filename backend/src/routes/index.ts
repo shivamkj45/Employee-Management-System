@@ -7,6 +7,8 @@ import employeeRoutes from "../modules/employee/employee.routes";
 import departmentRoutes from "../modules/department/department.routes";
 import attendanceRoutes from "../modules/attendance/attendance.routes";
 import leaveRoutes from "../modules/leave/leave.routes";
+import profileRoutes from "../modules/profile/profile.routes";
+import dashboardRoutes from "../modules/dashboard/dashboard.routes";
 const router = Router();
 
 
@@ -24,5 +26,8 @@ router.use("/departments", departmentRoutes);
 router.use("/attendance", attendanceRoutes);
 //Leave
 router.use("/leave", leaveRoutes);
+//profile
+router.use("/users", profileRoutes);
+router.use("/dashboard",dashboardRoutes);
 
 export default router;

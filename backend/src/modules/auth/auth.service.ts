@@ -3,7 +3,7 @@ import User from "../user/user.model";
 import Employee from "../employee/employee.model";
 import ApiError from "../../utils/ApiError";
 import { comparePassword } from "./auth.utils";
-import { generateAccessToken } from "../../utils/jwt";
+import { generateAccessToken,generateRefreshToken,verifyRefreshToken } from "../../utils/jwt";
 import { UserRole } from "../../types/roles";
 export const registerUser = async (
   employeeId: string,
@@ -69,14 +69,134 @@ export const loginUser = async (
     throw new ApiError(401, "Invalid email or password");
   }
 
-  const token = generateAccessToken({
+  const accessToken = generateAccessToken({
+  userId: user._id.toString(),
+  email: user.email,
+  role: user.role,
+});
+
+const refreshToken = generateRefreshToken({
+  userId: user._id.toString(),
+  email: user.email,
+  role: user.role,
+});
+
+user.refreshToken = refreshToken;
+
+await user.save();
+
+return {
+  user,
+  accessToken,
+  refreshToken,
+};
+};
+
+export const getCurrentUser = async (userId: string) => {
+  const user = await User.findById(userId)
+    .select("-password -refreshToken")
+    .populate({
+      path: "employee",
+      populate: {
+        path: "department",
+      },
+    });
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  return user;
+};
+
+export const changePassword = async (
+  userId: string,
+  oldPassword: string,
+  newPassword: string
+) => {
+
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  const isPasswordCorrect =
+    await comparePassword(
+      oldPassword,
+      user.password
+    );
+
+  if (!isPasswordCorrect) {
+    throw new ApiError(
+      400,
+      "Old password is incorrect"
+    );
+  }
+
+  user.password =
+    await hashPassword(newPassword);
+
+  await user.save();
+
+  return;
+};
+
+export const logoutUser = async (userId: string) => {
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  user.refreshToken = null;
+
+  await user.save();
+};
+
+export const refreshUserToken = async (
+  refreshToken: string
+) => {
+
+  if (!refreshToken) {
+    throw new ApiError(401, "Refresh token is required");
+  }
+
+  // Verify JWT
+  const decoded = verifyRefreshToken(refreshToken);
+
+  // Find user
+  const user = await User.findById(decoded.userId);
+
+  if (!user) {
+    throw new ApiError(401, "User not found");
+  }
+
+  // Compare stored refresh token
+  if (user.refreshToken !== refreshToken) {
+    throw new ApiError(401, "Invalid refresh token");
+  }
+
+  // Generate new access token
+  const accessToken = generateAccessToken({
     userId: user._id.toString(),
     email: user.email,
     role: user.role,
   });
 
+  // Rotate refresh token
+  const newRefreshToken = generateRefreshToken({
+    userId: user._id.toString(),
+    email: user.email,
+    role: user.role,
+  });
+
+  user.refreshToken = newRefreshToken;
+
+  await user.save();
+
   return {
-    user,
-    token,
+    accessToken,
+    refreshToken: newRefreshToken,
   };
 };

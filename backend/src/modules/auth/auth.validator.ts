@@ -33,3 +33,16 @@ export const loginSchema = z.object({
     .string()
     .min(1, "Password is required"),
 });
+
+export const changePasswordSchema = z.object({
+  oldPassword: z
+    .string()
+    .min(6, "Old password is required"),
+
+  newPassword: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .regex(/[A-Z]/, "Must contain one uppercase letter")
+    .regex(/[a-z]/, "Must contain one lowercase letter")
+    .regex(/[0-9]/, "Must contain one number"),
+});

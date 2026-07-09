@@ -1,39 +1,79 @@
 import jwt, { SignOptions } from "jsonwebtoken";
 import { UserRole } from "../types/roles";
 
-interface JwtPayload {
+export interface JwtPayload {
   userId: string;
   email: string;
   role: UserRole;
 }
-const JWT_SECRET = process.env.JWT_SECRET!;
 
-const JWT_EXPIRES_IN = "1d";
-console.log("JWT_SECRET:", process.env.JWT_SECRET);
+const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET!;
+const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!;
+
+const ACCESS_EXPIRES =
+  process.env.JWT_ACCESS_EXPIRES_IN || "15m";
+
+const REFRESH_EXPIRES =
+  process.env.JWT_REFRESH_EXPIRES_IN || "7d";
+
+// ============================
+// Generate Access Token
+// ============================
+
 export const generateAccessToken = (
   payload: JwtPayload
 ): string => {
 
-  const secret = process.env.JWT_SECRET;
-
-  if (!secret) {
-    throw new Error("JWT_SECRET is not configured");
-  }
-
-  const options: SignOptions = {
-  expiresIn: JWT_EXPIRES_IN
+  return jwt.sign(
+    payload,
+    ACCESS_SECRET,
+    {
+      expiresIn: ACCESS_EXPIRES,
+    } as SignOptions
+  );
 };
 
-return jwt.sign(payload, JWT_SECRET, options);
+// ============================
+// Verify Access Token
+// ============================
+
+export const verifyAccessToken = (
+  token: string
+): JwtPayload => {
+
+  return jwt.verify(
+    token,
+    ACCESS_SECRET
+  ) as JwtPayload;
 };
 
-export const verifyAccessToken = (token: string): JwtPayload => {
+// ============================
+// Generate Refresh Token
+// ============================
 
-  const secret = process.env.JWT_SECRET;
+export const generateRefreshToken = (
+  payload: JwtPayload
+): string => {
 
-  if (!secret) {
-    throw new Error("JWT_SECRET is not configured");
-  }
+  return jwt.sign(
+    payload,
+    REFRESH_SECRET,
+    {
+      expiresIn: REFRESH_EXPIRES,
+    } as SignOptions
+  );
+};
 
-  return jwt.verify(token, secret) as JwtPayload;
+// ============================
+// Verify Refresh Token
+// ============================
+
+export const verifyRefreshToken = (
+  token: string
+): JwtPayload => {
+
+  return jwt.verify(
+    token,
+    REFRESH_SECRET
+  ) as JwtPayload;
 };

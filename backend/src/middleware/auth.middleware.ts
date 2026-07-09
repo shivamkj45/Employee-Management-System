@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from "express";
-import User from "../modules/user/user.model";
+import User,{IUser} from "../modules/user/user.model";
 import ApiError from "../utils/ApiError";
 import asyncHandler from "../utils/asyncHandler";
 import { verifyAccessToken } from "../utils/jwt";
 
 export interface AuthRequest extends Request {
-  user?: any;
+  user?: IUser;
 }
 
 export const authenticate = asyncHandler(
