@@ -5,6 +5,12 @@ import Employee from "../employee/employee.model";
 
 import ApiError from "../../utils/ApiError";
 import { string } from "zod";
+import {
+  notifyUser,
+  notifyRoles,
+} from "../notification/notification.helper";
+import User from "../user/user.model";
+import { logAction } from "../audit/audit.helper";
 
 export const applyLeave = async (
   employeeId: string,
@@ -60,6 +66,18 @@ export const applyLeave = async (
     reason,
     status: "Pending",
   });
+  await notifyRoles(
+  ["admin", "hr"],
+  "New Leave Request",
+  `${employee.firstName} ${employee.lastName} has applied for ${leaveType} leave.`,
+  "info"
+);
+await logAction(
+  employee._id.toString(),
+  "CREATE",
+  "Leave",
+  `${employee.firstName} ${employee.lastName} applied for ${leaveType} leave.`
+);
 
   return leave;
 };
@@ -84,6 +102,24 @@ export const approveLeave = async (
   leave.status = "Approved";
 
   await leave.save();
+  const employeeUser = await User.findOne({
+  employee: leave.employee,
+});
+
+if (employeeUser) {
+  await notifyUser(
+    employeeUser._id.toString(),
+    "Leave Approved",
+    "Your leave request has been approved.",
+    "success"
+  );
+  await logAction(
+  leave.employee.toString(),
+  "APPROVE",
+  "Leave",
+  "Leave request approved."
+);
+}
 
   return leave;
 };
@@ -108,6 +144,24 @@ export const rejectLeave = async (
   leave.status = "Rejected";
 
   await leave.save();
+  const employeeUser = await User.findOne({
+  employee: leave.employee,
+});
+
+if (employeeUser) {
+  await notifyUser(
+    employeeUser._id.toString(),
+    "Leave Rejected",
+    "Your leave request has been rejected.",
+    "warning"
+  );
+  await logAction(
+  leave.employee.toString(),
+  "REJECT",
+  "Leave",
+  "Leave request rejected."
+);
+}
 
   return leave;
 };

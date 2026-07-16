@@ -146,3 +146,56 @@ export const getAttendanceTrend = async () => {
     absent: totalEmployees - item.present,
   }));
 };
+export const getLeaveStats = async () => {
+  const [pending, approved, rejected] = await Promise.all([
+    Leave.countDocuments({ status: "Pending" }),
+    Leave.countDocuments({ status: "Approved" }),
+    Leave.countDocuments({ status: "Rejected" }),
+  ]);
+
+  return [
+    { status: "Pending", count: pending },
+    { status: "Approved", count: approved },
+    { status: "Rejected", count: rejected },
+  ];
+};
+export const getEmployeeGrowth = async () => {
+  const growth = await Employee.aggregate([
+    {
+      $group: {
+        _id: {
+          year: { $year: "$joiningDate" },
+          month: { $month: "$joiningDate" },
+        },
+        employees: { $sum: 1 },
+      },
+    },
+    {
+      $sort: {
+        "_id.year": 1,
+        "_id.month": 1,
+      },
+    },
+  ]);
+
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  return growth.map((item) => ({
+    year: item._id.year,
+    month: monthNames[item._id.month - 1],
+    employees: item.employees,
+  }));
+};

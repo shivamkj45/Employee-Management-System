@@ -65,3 +65,32 @@ export const getAttendanceTrend = asyncHandler(
     );
   }
 );
+export const getLeaveStats = asyncHandler(
+  async (_req: Request, res: Response) => {
+
+    const stats =
+      await dashboardService.getLeaveStats();
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        stats,
+        "Leave statistics fetched successfully"
+      )
+    );
+  }
+);
+export const getEmployeeGrowth = asyncHandler(
+  async (_req: Request, res: Response) => {
+    const growth =
+      await dashboardService.getEmployeeGrowth();
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        growth,
+        "Employee growth fetched successfully"
+      )
+    );
+  }
+);

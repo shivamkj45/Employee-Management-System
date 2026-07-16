@@ -6,6 +6,9 @@ import User from "../user/user.model";
 
 import { generateTemporaryPassword } from "../../utils/password";
 import ApiError from "../../utils/ApiError";
+import { notifyRoles } from "../notification/notification.helper";
+import { logAction } from "../audit/audit.helper";
+
 // Create Employee
 // Create Employee + User Account
 export const createEmployee = async (
@@ -64,6 +67,18 @@ export const createEmployee = async (
     await session.commitTransaction();
     session.endSession();
 
+    await notifyRoles(
+  ["admin", "hr"],
+  "New Employee Added",
+  `${employee.firstName} ${employee.lastName} has been added.`,
+  "success"
+);
+await logAction(
+  employee._id.toString(),
+  "CREATE",
+  "Employee",
+  `Employee ${employee.employeeId} (${employee.firstName} ${employee.lastName}) was created.`
+);
     return {
       employee: employee,
       temporaryPassword,
@@ -170,6 +185,12 @@ export const updateEmployee = async (
 );
 
     await session.commitTransaction();
+    await logAction(
+  updatedEmployee._id.toString(),
+  "UPDATE",
+  "Employee",
+  `Employee ${updatedEmployee.employeeId} profile updated.`
+);
 
     session.endSession();
 
@@ -186,6 +207,22 @@ export const updateEmployee = async (
 export const deleteEmployee = async (
   id: string
 ): Promise<IEmployee | null> => {
-  const deletedEmployee = await Employee.findByIdAndDelete(id);
+
+  const employee = await Employee.findById(id);
+
+  if (!employee) {
+    throw new Error("Employee not found");
+  }
+
+  const deletedEmployee =
+    await Employee.findByIdAndDelete(id);
+
+  await logAction(
+    employee._id.toString(),
+    "DELETE",
+    "Employee",
+    `Employee ${employee.employeeId} deleted.`
+  );
+
   return deletedEmployee;
 };

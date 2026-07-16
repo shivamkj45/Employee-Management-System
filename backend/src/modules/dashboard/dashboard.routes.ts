@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { getDashboardSummary,getRecentEmployees,getDepartmentStats,getAttendanceTrend } from "./dashboard.controller";
+import { getDashboardSummary,getRecentEmployees,getDepartmentStats,getAttendanceTrend,getLeaveStats,getEmployeeGrowth } from "./dashboard.controller";
 
 import { authenticate } from "../../middleware/auth.middleware";
 import { authorize } from "../../middleware/authorize.middleware";
@@ -32,5 +32,19 @@ router.get(
   authenticate,
   authorize("admin", "hr", "manager"),
   getAttendanceTrend
+);
+
+router.get(
+  "/leave-stats",
+  authenticate,
+  authorize("admin", "hr", "manager"),
+  getLeaveStats
+);
+
+router.get(
+  "/employee-growth",
+  authenticate,
+  authorize("admin", "hr", "manager"),
+  getEmployeeGrowth
 );
 export default router;

@@ -5,6 +5,11 @@ import ApiError from "../../utils/ApiError";
 import { comparePassword } from "./auth.utils";
 import { generateAccessToken,generateRefreshToken,verifyRefreshToken } from "../../utils/jwt";
 import { UserRole } from "../../types/roles";
+import {
+  notifyUser,
+  notifyRoles,
+} from "../notification/notification.helper";
+import { logAction } from "../audit/audit.helper";
 export const registerUser = async (
   employeeId: string,
   email: string,
@@ -84,6 +89,12 @@ const refreshToken = generateRefreshToken({
 user.refreshToken = refreshToken;
 
 await user.save();
+await logAction(
+  user._id.toString(),
+  "LOGIN",
+  "Authentication",
+  "User logged in."
+);
 
 return {
   user,
@@ -138,6 +149,18 @@ export const changePassword = async (
     await hashPassword(newPassword);
 
   await user.save();
+  await notifyUser(
+  user._id.toString(),
+  "Password Changed",
+  "Your account password was changed successfully.",
+  "info"
+);
+await logAction(
+  user._id.toString(),
+  "PASSWORD_CHANGED",
+  "Authentication",
+  "User changed account password."
+);
 
   return;
 };
@@ -152,6 +175,12 @@ export const logoutUser = async (userId: string) => {
   user.refreshToken = null;
 
   await user.save();
+  await logAction(
+  user._id.toString(),
+  "LOGOUT",
+  "Authentication",
+  "User logged out."
+);
 };
 
 export const refreshUserToken = async (

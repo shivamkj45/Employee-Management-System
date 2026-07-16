@@ -9,6 +9,10 @@ import attendanceRoutes from "../modules/attendance/attendance.routes";
 import leaveRoutes from "../modules/leave/leave.routes";
 import profileRoutes from "../modules/profile/profile.routes";
 import dashboardRoutes from "../modules/dashboard/dashboard.routes";
+import notificationRoutes from "../modules/notification/notification.routes";
+import auditRoutes from "../modules/audit/audit.routes";
+
+
 const router = Router();
 
 
@@ -29,5 +33,10 @@ router.use("/leave", leaveRoutes);
 //profile
 router.use("/users", profileRoutes);
 router.use("/dashboard",dashboardRoutes);
+router.use(
+  "/notifications",
+  notificationRoutes
+);
+router.use("/audit", auditRoutes);
 
 export default router;
