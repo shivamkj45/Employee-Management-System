@@ -5,11 +5,14 @@ import {
   getEmployeeById,
   updateEmployee,
   deleteEmployee,
+  uploadProfileImage,
 } from "../employee/employee.controller";
 
 import { validateEmployee,validateEmployeeUpdate } from "../employee/employee.validator";
 import { authenticate } from "../../middleware/auth.middleware";
 import { authorize } from "../../middleware/authorize.middleware";
+import upload from "../../middleware/upload.middleware";
+
 const router = Router();
 
 /**
@@ -55,6 +58,13 @@ const router = Router();
 // Create Employee
 router.post("/", authenticate,authorize("admin","hr"),validateEmployee, createEmployee);
 
+router.post(
+  "/:id/profile-image",
+  authenticate,
+  authorize("admin", "hr", "employee"),
+  upload.single("image"),
+  uploadProfileImage
+);
 // Get All Employees
 router.get("/", authenticate,authorize("admin", "hr", "manager"), getAllEmployees);
 

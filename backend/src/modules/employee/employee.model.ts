@@ -16,6 +16,7 @@ export interface IEmployee extends Document {
   status: "Active" | "Inactive";
   role: UserRole;
   address: string;
+  profileImage?: string;
 }
 
 const employeeSchema = new Schema<IEmployee>(
@@ -46,6 +47,10 @@ const employeeSchema = new Schema<IEmployee>(
       lowercase: true,
       trim: true,
     },
+    profileImage: {
+    type: String,
+    default: "",
+},
 
     phone: {
       type: String,

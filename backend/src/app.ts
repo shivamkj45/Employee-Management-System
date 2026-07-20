@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import compression from "compression";
+
 import rateLimit from "express-rate-limit";
 import dashboardRoutes from "./modules/dashboard/dashboard.routes";
 import swaggerUi from "swagger-ui-express";
@@ -16,10 +17,17 @@ const app = express();
 
 app.use(express.json());
 
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  })
+);
 app.use(helmet());
 app.use(compression());
+
 app.use(morgan("dev"));
+
 
 app.use(
   "/api-docs",
@@ -39,5 +47,5 @@ app.use("/api/v1", routes);
 
 // Global Error Handler
 app.use(errorHandler);
-app.use("/api/v1/dashboard", dashboardRoutes);
+
 export default app;

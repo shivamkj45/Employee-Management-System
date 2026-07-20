@@ -98,3 +98,27 @@ export const deleteEmployee = asyncHandler(async (req: Request, res: Response) =
   );
 
 });
+
+export const uploadProfileImage = asyncHandler(
+  async (req: Request, res: Response) => {
+
+    if (!req.file) {
+      throw new ApiError(400, "Image is required");
+    }
+
+    const employee =
+      await employeeService.uploadProfileImage(
+        req.params.id,
+        req.file
+      );
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        employee,
+        "Profile image uploaded successfully"
+      )
+    );
+
+  }
+);

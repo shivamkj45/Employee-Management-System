@@ -3,6 +3,8 @@ import bcrypt from "bcrypt";
 
 import Employee, { IEmployee } from "./employee.model";
 import User from "../user/user.model";
+import { uploadImage, deleteImage } from "../../services/cloudinary.service";
+import multer from "multer";
 
 import { generateTemporaryPassword } from "../../utils/password";
 import ApiError from "../../utils/ApiError";
@@ -239,4 +241,33 @@ export const deleteEmployee = async (
   );
 
   return deletedEmployee;
+};
+
+export const uploadProfileImage = async (
+  employeeId: string,
+  file: Express.Multer.File
+): Promise<IEmployee> => {
+
+  const employee = await Employee.findById(employeeId);
+
+  if (!employee) {
+    throw new ApiError(404, "Employee not found.");
+  }
+
+  // Delete previous image if it exists
+  if (employee.profileImage) {
+    await deleteImage(employee.profileImage);
+  }
+
+  // Upload new image
+  const imageUrl = await uploadImage(
+    file.buffer,
+    "employee-profile"
+  );
+
+  employee.profileImage = imageUrl;
+
+  await employee.save();
+
+  return employee;
 };
