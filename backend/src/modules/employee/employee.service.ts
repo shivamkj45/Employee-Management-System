@@ -8,7 +8,8 @@ import { generateTemporaryPassword } from "../../utils/password";
 import ApiError from "../../utils/ApiError";
 import { notifyRoles } from "../notification/notification.helper";
 import { logAction } from "../audit/audit.helper";
-
+import { sendEmail } from "../../services/email.service";
+import { welcomeEmail } from "../../templates/welcomeEmail";
 // Create Employee
 // Create Employee + User Account
 export const createEmployee = async (
@@ -73,6 +74,19 @@ export const createEmployee = async (
   `${employee.firstName} ${employee.lastName} has been added.`,
   "success"
 );
+try {
+  await sendEmail({
+    to: employee.email,
+    subject: "Welcome to Employee Management System",
+    html: welcomeEmail(
+      `${employee.firstName} ${employee.lastName}`,
+      employee.email,
+      temporaryPassword
+    ),
+  });
+} catch (error) {
+  console.error("Failed to send welcome email:", error);
+}
 await logAction(
   employee._id.toString(),
   "CREATE",

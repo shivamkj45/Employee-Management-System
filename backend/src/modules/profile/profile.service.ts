@@ -2,6 +2,7 @@ import User from "../user/user.model";
 import Employee from "../employee/employee.model";
 import { IEmployee } from "../employee/employee.model";
 import ApiError from "../../utils/ApiError";
+import { logAction } from "../audit/audit.helper";
 
 export const getMyProfile = async (
   userId: string
@@ -62,6 +63,12 @@ export const updateMyProfile = async (
   }
 
   await employee.save();
+  await logAction(
+  user._id.toString(),
+  "PROFILE_UPDATED",
+  "Profile",
+  "User updated profile."
+);
 
   return employee;
 };
