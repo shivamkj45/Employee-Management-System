@@ -21,7 +21,9 @@ export const authenticate = asyncHandler(
 
     const decoded = verifyAccessToken(token);
 
-    const user = await User.findById(decoded.userId).select("-password");
+    const user = await User.findById(decoded.userId)
+  .populate("employee")
+  .select("-password");
 
     if (!user) {
       throw new ApiError(401, "User not found");

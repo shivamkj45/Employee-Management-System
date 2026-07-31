@@ -26,11 +26,30 @@ if (!employee) {
     throw new ApiError(400, "Employee has already checked in today.");
   }
 
+  const checkInTime = new Date();
+
+const officeStart = new Date();
+officeStart.setHours(10, 15, 0, 0);
+
+let status: "Present" | "Late" = "Present";
+let lateMinutes = 0;
+
+if (checkInTime > officeStart) {
+  status = "Late";
+
+  lateMinutes = Math.floor(
+    (checkInTime.getTime() -
+      officeStart.getTime()) /
+      (1000 * 60)
+  );
+}
+
   const attendance = await Attendance.create({
     employee: employeeObjectId,
     date: today,
-    checkIn: new Date(),
-    status: "Present",
+    checkIn: checkInTime,
+    status,
+    lateMinutes,
     remarks,
   });
 
@@ -77,20 +96,48 @@ export const checkOut = async (
 
   return attendance;
 };
-export const getTodayAttendance = async (): Promise<IAttendance[]> => {
+export const getTodayAttendance =
+async (
+  selectedDate?: string
+): Promise<IAttendance[]> => {
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const date = selectedDate
+  ? new Date(selectedDate)
+  : new Date();
 
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
+date.setHours(0, 0, 0, 0);
+
+const nextDay = new Date(date);
+
+nextDay.setDate(date.getDate() + 1);
 
   return Attendance.find({
     date: {
-      $gte: today,
-      $lt: tomorrow,
+      $gte: date,
+$lt: nextDay,
     },
   })
-    .populate("employee")
+    .populate({
+    path: "employee",
+    populate: {
+        path: "department",
+        select: "name",
+    },
+})
     .sort({ checkIn: 1 });
+};
+
+export const getEmployeeAttendanceHistory =
+async (
+  employeeId: string
+): Promise<IAttendance[]> => {
+
+  return Attendance.find({
+    employee: employeeId,
+  })
+    .sort({ date: -1 })
+    .populate(
+      "employee",
+      "firstName lastName employeeId profileImage"
+    );
 };

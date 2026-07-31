@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 import { applyLeave, approveLeave,rejectLeave,getAllLeaves,
-  getLeaveById, } from "./leave.controller";
+  getLeaveById,getLeaveSummary } from "./leave.controller";
 import { authorize } from "../../middleware/authorize.middleware";
 import validate from "../../middleware/validate";
 
@@ -30,6 +30,12 @@ router.patch(
   authorize("admin", "hr"),
   rejectLeave
 );
+router.get(
+  "/summary",
+  authenticate,
+  authorize("admin", "hr", "manager"),
+  getLeaveSummary
+);
 
 router.get(
   "/",
@@ -44,4 +50,6 @@ router.get(
   authorize("admin", "hr"),
   getLeaveById
 );
+
+
 export default router;

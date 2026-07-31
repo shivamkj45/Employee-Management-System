@@ -95,3 +95,18 @@ export const getLeaveById = asyncHandler(
     );
   }
 );
+
+export const getLeaveSummary = asyncHandler(
+  async (_req: Request, res: Response) => {
+    const summary =
+      await leaveService.getLeaveSummary();
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        summary,
+        "Leave summary fetched successfully"
+      )
+    );
+  }
+);

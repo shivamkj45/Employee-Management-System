@@ -169,13 +169,68 @@ if (employeeUser) {
 // Get All Leave Requests
 export const getAllLeaves = async (): Promise<ILeave[]> => {
   return Leave.find()
-    .populate("employee")
-    .sort({ createdAt: -1 });
+  .populate({
+    path: "employee",
+    populate: {
+      path: "department",
+      select: "name",
+    },
+  })
+  .sort({ createdAt: -1 });
 };
 
 // Get Leave By ID
 export const getLeaveById = async (
   leaveId: string
 ): Promise<ILeave | null> => {
-  return Leave.findById(leaveId).populate("employee");
+  return Leave.findById(leaveId)
+  .populate({
+    path: "employee",
+    populate: {
+      path: "department",
+      select: "name",
+    },
+  });
+};
+
+export const getLeaveSummary = async () => {
+  const today = new Date();
+
+  today.setHours(0, 0, 0, 0);
+
+  const [
+    pending,
+    approved,
+    rejected,
+    onLeaveToday,
+  ] = await Promise.all([
+    Leave.countDocuments({
+      status: "Pending",
+    }),
+
+    Leave.countDocuments({
+      status: "Approved",
+    }),
+
+    Leave.countDocuments({
+      status: "Rejected",
+    }),
+
+    Leave.countDocuments({
+      status: "Approved",
+      startDate: {
+        $lte: today,
+      },
+      endDate: {
+        $gte: today,
+      },
+    }),
+  ]);
+
+  return {
+    pending,
+    approved,
+    rejected,
+    onLeaveToday,
+  };
 };

@@ -9,9 +9,16 @@ export interface IAttendance extends Document {
 
   checkOut?: Date;
 
-  status: "Present" | "Absent" | "Half Day" | "Leave";
+  status:
+    | "Present"
+    | "Absent"
+    | "Half Day"
+    | "Leave"
+    | "Late";
 
   workingHours?: number;
+
+  lateMinutes?: number;
 
   remarks?: string;
 }
@@ -35,7 +42,7 @@ const attendanceSchema = new Schema<IAttendance>(
 
     status: {
       type: String,
-      enum: ["Present", "Absent", "Half Day", "Leave"],
+      enum: ["Present", "Absent", "Half Day", "Leave","Late",],
       default: "Present",
     },
 
@@ -43,6 +50,11 @@ const attendanceSchema = new Schema<IAttendance>(
       type: Number,
       default: 0,
     },
+
+    lateMinutes: {
+  type: Number,
+  default: 0,
+},
 
     remarks: {
       type: String,
