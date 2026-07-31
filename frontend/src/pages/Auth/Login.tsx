@@ -75,68 +75,82 @@ function Login() {
 };
 
   return (
-    <Container maxWidth="sm">
-      <Paper
-        elevation={4}
+  <Container maxWidth="sm">
+    <Paper
+      elevation={4}
+      sx={{
+        mt: 10,
+        p: 5,
+        borderRadius: 3,
+      }}
+    >
+      <Typography
+        component="h1"
+        variant="h4"
+        align="center"
         sx={{
-          mt: 10,
-          p: 4,
-          borderRadius: 3,
+          color: "primary.main",
+          fontWeight: 700,
+          mb: 1,
         }}
       >
-        <Typography
-          component="h1"
-          variant="h4"
-          align="center"
+        Employee Management System
+      </Typography>
+
+      <Typography
+        component="h2"
+        variant="subtitle1"
+        align="center"
+        color="text.secondary"
+        sx={{
+          mb: 4,
+        }}
+      >
+        Sign in to continue
+      </Typography>
+
+      <Box
+        component="form"
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+      >
+        <TextField
+          fullWidth
+          label="Email"
+          margin="normal"
+          {...register("email")}
+          error={!!errors.email}
+          helperText={errors.email?.message}
+        />
+
+        <TextField
+          fullWidth
+          type="password"
+          label="Password"
+          margin="normal"
+          {...register("password")}
+          error={!!errors.password}
+          helperText={errors.password?.message}
+        />
+
+        <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+          size="large"
+          sx={{
+            mt: 3,
+            py: 1.4,
+            fontWeight: 600,
+            borderRadius: 2,
+          }}
         >
-          Employee Management System
-        </Typography>
-
-        <Typography
-          component="h2"
-          variant="subtitle1"
-          align="center"
-          sx={{ mt: 1, mb: 4 }}
-        >
-          Sign in to continue
-        </Typography>
-
-        <Box
-          component="form"
-          onSubmit={handleSubmit(onSubmit)}
-          noValidate
-        >
-          <TextField
-            fullWidth
-            label="Email"
-            margin="normal"
-            {...register("email")}
-            error={!!errors.email}
-            helperText={errors.email?.message}
-          />
-
-          <TextField
-            fullWidth
-            type="password"
-            label="Password"
-            margin="normal"
-            {...register("password")}
-            error={!!errors.password}
-            helperText={errors.password?.message}
-          />
-
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3 }}
-          >
-            Login
-          </Button>
-        </Box>
-      </Paper>
-    </Container>
-  );
+          Login
+        </Button>
+      </Box>
+    </Paper>
+  </Container>
+   );
 }
 
 export default Login;

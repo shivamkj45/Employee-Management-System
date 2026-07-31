@@ -1,5 +1,5 @@
 import { Grid, Typography } from "@mui/material";
-import DashboardSummary from "../../components/dashboard/DashboardSummary";
+
 import EmployeeGrowthChart from "../../components/dashboard/EmployeeGrowthChart";
 import DepartmentChart from "../../components/dashboard/DepartmentChart";
 import LeaveChart from "../../components/dashboard/LeaveChart";
@@ -11,17 +11,12 @@ function AdminDashboard() {
     <>
       <Typography
         variant="h4"
-        component="h1"
-        sx={{
-          color: "primary.main",
-          mb: 8,
-          fontWeight: 700,
-        }}
+        sx={{ mb: 4, fontWeight: 700 }}
       >
-        Admin Dashboard
+        Dashboard
       </Typography>
-      <DashboardSummary />
-      <Grid container spacing={2}>
+
+      <Grid container spacing={3}>
         <Grid size={{ xs: 12, lg: 8 }}>
           <EmployeeGrowthChart />
         </Grid>
