@@ -1,5 +1,28 @@
 import { Schema, model, Document, Types } from "mongoose";
 
+export type NotificationType =
+  | "info"
+  | "success"
+  | "warning"
+  | "error";
+
+export type NotificationCategory =
+  | "leave"
+  | "attendance"
+  | "employee"
+  | "payroll"
+  | "recruitment"
+  | "asset"
+  | "performance"
+  | "announcement"
+  | "system";
+
+export type NotificationPriority =
+  | "low"
+  | "medium"
+  | "high"
+  | "critical";
+
 export interface INotification extends Document {
   user: Types.ObjectId;
 
@@ -7,13 +30,19 @@ export interface INotification extends Document {
 
   message: string;
 
-  type:
-    | "info"
-    | "success"
-    | "warning"
-    | "error";
+  type: NotificationType;
+
+  category: NotificationCategory;
+
+  priority: NotificationPriority;
+
+  actionUrl?: string;
+
+  metadata?: Record<string, any>;
 
   isRead: boolean;
+
+  expiresAt?: Date;
 }
 
 const notificationSchema =
@@ -44,6 +73,45 @@ const notificationSchema =
           "error",
         ],
         default: "info",
+      },
+
+      category: {
+        type: String,
+        enum: [
+          "leave",
+          "attendance",
+          "employee",
+          "payroll",
+          "recruitment",
+          "asset",
+          "performance",
+          "announcement",
+          "system",
+        ],
+        default: "system",
+      },
+
+      priority: {
+        type: String,
+        enum: [
+          "low",
+          "medium",
+          "high",
+          "critical",
+        ],
+        default: "medium",
+      },
+
+      actionUrl: {
+        type: String,
+      },
+
+      metadata: {
+        type: Schema.Types.Mixed,
+      },
+
+      expiresAt: {
+        type: Date,
       },
 
       isRead: {

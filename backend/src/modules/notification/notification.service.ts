@@ -1,5 +1,8 @@
 import Notification, {
   INotification,
+  NotificationCategory,
+  NotificationPriority,
+  NotificationType,
 } from "./notification.model";
 
 /**
@@ -9,38 +12,111 @@ export const createNotification = async (
   userId: string,
   title: string,
   message: string,
-  type: "info" | "success" | "warning" | "error" = "info"
+  type: NotificationType = "info",
+  category: NotificationCategory = "system",
+  priority: NotificationPriority = "medium",
+  actionUrl?: string,
+  metadata?: Record<string, any>,
+  expiresAt?: Date
 ): Promise<INotification> => {
   return await Notification.create({
     user: userId,
     title,
     message,
     type,
+    category,
+    priority,
+    actionUrl,
+    metadata,
+    expiresAt,
   });
 };
 
 /**
- * Get Notifications of Logged-in User
+ * Get Notifications
  */
 export const getMyNotifications = async (
-  userId: string
+  userId: string,
+  page = 1,
+  limit = 20,
+  all = false
 ) => {
-  return await Notification.find({
-    user: userId,
-  })
-    .sort({
-      createdAt: -1,
-    });
+
+  if (all) {
+
+    const notifications =
+      await Notification.find({
+        user: userId,
+      }).sort({
+        createdAt: -1,
+      });
+
+    return {
+      notifications,
+      pagination: {
+        total: notifications.length,
+        page: 1,
+        limit: notifications.length,
+        totalPages: 1,
+      },
+    };
+  }
+
+  const skip = (page - 1) * limit;
+
+  const [notifications, total] =
+    await Promise.all([
+
+      Notification.find({
+        user: userId,
+      })
+        .sort({
+          createdAt: -1,
+        })
+        .skip(skip)
+        .limit(limit),
+
+      Notification.countDocuments({
+        user: userId,
+      }),
+
+    ]);
+
+  return {
+
+    notifications,
+
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+
+  };
+
 };
 
 /**
- * Mark One Notification as Read
+ * Get unread notification count
+ */
+export const getUnreadCount = async (
+  userId: string
+) => {
+  return Notification.countDocuments({
+    user: userId,
+    isRead: false,
+  });
+};
+
+/**
+ * Mark One Notification Read
  */
 export const markAsRead = async (
   notificationId: string,
   userId: string
 ) => {
-  return await Notification.findOneAndUpdate(
+  return Notification.findOneAndUpdate(
     {
       _id: notificationId,
       user: userId,
@@ -55,12 +131,11 @@ export const markAsRead = async (
 };
 
 /**
- * Mark All Notifications as Read
+ * Mark All Notifications Read
  */
 export const markAllAsRead = async (
   userId: string
 ) => {
-
   await Notification.updateMany(
     {
       user: userId,
@@ -81,10 +156,8 @@ export const deleteNotification = async (
   notificationId: string,
   userId: string
 ) => {
-
-  return await Notification.findOneAndDelete({
+  return Notification.findOneAndDelete({
     _id: notificationId,
     user: userId,
   });
-
 };

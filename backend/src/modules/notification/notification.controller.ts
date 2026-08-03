@@ -18,16 +18,50 @@ export const getMyNotifications = asyncHandler(
       throw new ApiError(401, "Unauthorized");
     }
 
+    const page = Number(req.query.page) || 1;
+
+const limit = Number(req.query.limit) || 20;
+
+const all = req.query.all === "true";
+
     const notifications =
-      await notificationService.getMyNotifications(
-        req.user._id.toString()
-      );
+  await notificationService.getMyNotifications(
+    req.user._id.toString(),
+    page,
+    limit,
+    all
+  );
 
     return res.status(200).json(
       new ApiResponse(
         200,
         notifications,
         "Notifications fetched successfully"
+      )
+    );
+  }
+);
+
+/**
+ * Get Unread Notification Count
+ */
+export const getUnreadCount = asyncHandler(
+  async (req: AuthRequest, res: Response) => {
+
+    if (!req.user) {
+      throw new ApiError(401, "Unauthorized");
+    }
+
+    const count =
+      await notificationService.getUnreadCount(
+        req.user._id.toString()
+      );
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        { count },
+        "Unread notification count fetched"
       )
     );
   }

@@ -24,6 +24,18 @@ export interface ILeave extends Document {
     | "Approved"
     | "Rejected";
 
+  approvalRemarks?: string;
+
+rejectionRemarks?: string;
+
+approvedBy?: Types.ObjectId;
+
+rejectedBy?: Types.ObjectId;
+
+approvedAt?: Date;
+
+rejectedAt?: Date;
+
 }
 
 const leaveSchema = new Schema<ILeave>(
@@ -71,6 +83,30 @@ const leaveSchema = new Schema<ILeave>(
       ],
       default: "Pending",
     },
+
+    approvalRemarks: {
+  type: String,
+  default: "",
+},
+
+rejectionRemarks: {
+  type: String,
+  default: "",
+},
+
+approvedBy: {
+  type: Schema.Types.ObjectId,
+  ref: "User",
+},
+
+rejectedBy: {
+  type: Schema.Types.ObjectId,
+  ref: "User",
+},
+
+approvedAt: Date,
+
+rejectedAt: Date,
   },
   {
     timestamps: true,

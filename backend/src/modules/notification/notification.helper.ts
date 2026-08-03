@@ -1,9 +1,12 @@
 import { UserRole } from "../../types/roles";
-import User from "../user/user.model";
-import { createNotification } from "./notification.service";
+
+import {
+  notifyRolesEnterprise,
+  notifyUserEnterprise,
+} from "./notification.event";
 
 /**
- * Send notification to all users having specific roles.
+ * Backward-compatible wrapper
  */
 export const notifyRoles = async (
   roles: UserRole[],
@@ -11,27 +14,20 @@ export const notifyRoles = async (
   message: string,
   type: "info" | "success" | "warning" | "error" = "info"
 ) => {
-  const users = await User.find({
-    role: { $in: roles },
-    isActive: true,
-  }).select("_id");
 
-  if (!users.length) return;
-
-  await Promise.all(
-    users.map((user) =>
-      createNotification(
-        user._id.toString(),
-        title,
-        message,
-        type
-      )
-    )
+  return notifyRolesEnterprise(
+    roles,
+    {
+      title,
+      message,
+      type,
+    }
   );
+
 };
 
 /**
- * Send notification to one user.
+ * Backward-compatible wrapper
  */
 export const notifyUser = async (
   userId: string,
@@ -39,10 +35,14 @@ export const notifyUser = async (
   message: string,
   type: "info" | "success" | "warning" | "error" = "info"
 ) => {
-  await createNotification(
+
+  return notifyUserEnterprise(
     userId,
-    title,
-    message,
-    type
+    {
+      title,
+      message,
+      type,
+    }
   );
+
 };

@@ -1,23 +1,56 @@
 import { Router } from "express";
 
-import { authenticate } from "../../middleware/auth.middleware";
+import {
+  getMyProfile,
+  updateMyProfile,
+  getProfileStats,
+  getProfileActivity,
+  getProfileCompletion,
+} from "./profile.controller";
 
-import { getMyProfile,updateMyProfile } from "./profile.controller";
-import { validate } from "../../middleware/validate.middleware";
-import { updateProfileSchema } from "./profile.validator";
+import { authenticate } from "../../middleware/auth.middleware";
 
 const router = Router();
 
+/* ===============================
+   MY PROFILE
+================================ */
+
 router.get(
-  "/profile",
+  "/",
   authenticate,
   getMyProfile
 );
+
+/* ===============================
+   UPDATE PROFILE
+================================ */
+
 router.put(
-  "/profile",
+  "/",
   authenticate,
-  validate(updateProfileSchema),
   updateMyProfile
+);
+
+/* ===============================
+   PROFILE STATS
+================================ */
+
+router.get(
+  "/stats",
+  authenticate,
+  getProfileStats
+);
+
+router.get(
+  "/activity",
+  authenticate,
+  getProfileActivity
+);
+router.get(
+  "/completion",
+  authenticate,
+  getProfileCompletion
 );
 
 export default router;

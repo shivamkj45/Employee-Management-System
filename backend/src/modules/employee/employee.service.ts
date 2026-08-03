@@ -140,6 +140,10 @@ export const getAllEmployees = async (query: any) => {
     filter.designation = designation;
   }
 
+  if (query.role) {
+  filter.role = query.role;
+}
+
   const totalEmployees = await Employee.countDocuments(filter);
 
   const employees = await Employee.find(filter)

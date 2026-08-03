@@ -5,6 +5,7 @@ import {
   markAsRead,
   markAllAsRead,
   deleteNotification,
+  getUnreadCount,
 } from "./notification.controller";
 
 import { authenticate } from "../../middleware/auth.middleware";
@@ -15,6 +16,12 @@ router.get(
   "/",
   authenticate,
   getMyNotifications
+);
+
+router.get(
+  "/unread-count",
+  authenticate,
+  getUnreadCount
 );
 
 router.patch(

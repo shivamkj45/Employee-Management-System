@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-
+import { Request,Response } from "express";
+import { AuthRequest } from "../../middleware/auth.middleware";
 import asyncHandler from "../../utils/asyncHandler";
 import ApiResponse from "../../utils/ApiResponse";
 
@@ -27,11 +27,16 @@ export const applyLeave = asyncHandler(
   }
 );
 export const approveLeave = asyncHandler(
-  async (req: Request, res: Response) => {
-
-    const leave = await leaveService.approveLeave(
-      req.params.id
-    );
+  async (
+    req: AuthRequest,
+    res: Response
+  ) => {
+    const leave =
+      await leaveService.approveLeave(
+        req.params.id,
+        req.body.remarks ?? "",
+        req.user!._id.toString()
+      );
 
     return res.status(200).json(
       new ApiResponse(
@@ -44,11 +49,16 @@ export const approveLeave = asyncHandler(
 );
 
 export const rejectLeave = asyncHandler(
-  async (req: Request, res: Response) => {
-
-    const leave = await leaveService.rejectLeave(
-      req.params.id
-    );
+  async (
+    req: AuthRequest,
+    res: Response
+  ) => {
+    const leave =
+      await leaveService.rejectLeave(
+        req.params.id,
+        req.body.remarks ?? "",
+        req.user!._id.toString()
+      );
 
     return res.status(200).json(
       new ApiResponse(

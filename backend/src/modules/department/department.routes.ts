@@ -6,6 +6,8 @@ import {
   getDepartmentById,
   updateDepartment,
   deleteDepartment,
+  restoreDepartment,
+  getDepartmentStats,
 } from "./department.controller";
 
 import validate from "../../middleware/validate";
@@ -16,6 +18,19 @@ import { authorize } from "../../middleware/authorize.middleware";
 
 const router = Router();
 
+/**
+ * Statistics
+ */
+router.get(
+  "/stats",
+  authenticate,
+  authorize("admin", "hr"),
+  getDepartmentStats
+);
+
+/**
+ * Create
+ */
 router.post(
   "/",
   authenticate,
@@ -24,18 +39,27 @@ router.post(
   createDepartment
 );
 
+/**
+ * Get All
+ */
 router.get(
   "/",
   authenticate,
   getAllDepartments
 );
 
+/**
+ * Get One
+ */
 router.get(
   "/:id",
   authenticate,
   getDepartmentById
 );
 
+/**
+ * Update
+ */
 router.put(
   "/:id",
   authenticate,
@@ -44,11 +68,24 @@ router.put(
   updateDepartment
 );
 
+/**
+ * Soft Delete
+ */
 router.delete(
   "/:id",
   authenticate,
   authorize("admin"),
   deleteDepartment
+);
+
+/**
+ * Restore
+ */
+router.patch(
+  "/:id/restore",
+  authenticate,
+  authorize("admin"),
+  restoreDepartment
 );
 
 export default router;

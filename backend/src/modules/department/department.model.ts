@@ -4,7 +4,7 @@ export interface IDepartment extends Document {
   name: string;
   description?: string;
   manager?: string;
-  status: boolean;
+  status: string;
 }
 
 const departmentSchema = new Schema<IDepartment>(
@@ -22,14 +22,16 @@ const departmentSchema = new Schema<IDepartment>(
     },
 
     manager: {
-      type: String,
-      default: "",
-    },
+    type: Schema.Types.ObjectId,
+    ref: "Employee",
+    default: null,
+},
 
-    status: {
-      type: Boolean,
-      default: true,
-    },
+   status: {
+    type: String,
+    enum: ["Active", "Inactive"],
+    default: "Active",
+}
   },
   {
     timestamps: true,

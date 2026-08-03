@@ -1,5 +1,8 @@
 import Audit, { IAudit } from "./audit.model";
 
+/**
+ * Create Audit Log
+ */
 export const createAuditLog = async (
   userId: string,
   action: string,
@@ -18,18 +21,91 @@ export const createAuditLog = async (
   });
 };
 
+/**
+ * Get All Audit Logs (Admin / HR)
+ */
 export const getAuditLogs = async () => {
   return await Audit.find()
-    .populate("user", "email role")
-    .sort({ createdAt: -1 });
+    .populate({
+      path: "user",
+      select: "email role employee",
+      populate: {
+        path: "employee",
+        select:
+          "firstName lastName profileImage designation",
+      },
+    })
+    .sort({
+      createdAt: -1,
+    });
 };
 
+/**
+ * Get Logged-in User Audit History
+ */
 export const getAuditLogsByUser = async (
   userId: string
 ) => {
   return await Audit.find({
     user: userId,
-  }).sort({
-    createdAt: -1,
-  });
+  })
+    .populate({
+      path: "user",
+      select: "email role employee",
+      populate: {
+        path: "employee",
+        select:
+          "firstName lastName profileImage designation",
+      },
+    })
+    .sort({
+      createdAt: -1,
+    });
+};
+/**
+ * Audit Statistics
+ */
+export const getAuditStats = async () => {
+
+  const totalLogs =
+    await Audit.countDocuments();
+
+  const today = new Date();
+
+  today.setHours(0, 0, 0, 0);
+
+  const todayLogs =
+    await Audit.countDocuments({
+      createdAt: {
+        $gte: today,
+      },
+    });
+
+  const activeUsers =
+    await Audit.distinct("user");
+
+  const criticalLogs =
+    await Audit.countDocuments({
+      action: {
+        $in: [
+          "DELETE",
+          "DISABLE",
+          "RESTORE",
+        ],
+      },
+    });
+
+  return {
+
+    totalLogs,
+
+    todayLogs,
+
+    activeUsers:
+      activeUsers.length,
+
+    criticalLogs,
+
+  };
+
 };

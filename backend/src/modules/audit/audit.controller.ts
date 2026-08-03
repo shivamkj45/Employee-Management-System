@@ -49,3 +49,27 @@ export const getMyAuditLogs = asyncHandler(
     );
   }
 );
+
+/**
+ * Audit Statistics
+ */
+export const getAuditStats = asyncHandler(
+  async (req: AuthRequest, res: Response) => {
+
+    if (!req.user) {
+      throw new ApiError(401, "Unauthorized");
+    }
+
+    const stats =
+      await auditService.getAuditStats();
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        stats,
+        "Audit statistics fetched successfully"
+      )
+    );
+
+  }
+);
