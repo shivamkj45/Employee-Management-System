@@ -1,16 +1,17 @@
-import { useQuery } from "@tanstack/react-query";
-
-import { getLeaveSummary,getAllLeaves } from "../api/leave.api";
 import {
-  approveLeave,
-  rejectLeave,
-} from "../api/leave.api";
-
-import { useMutation } from "@tanstack/react-query";
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 import toast from "react-hot-toast";
 
-import { useQueryClient } from "@tanstack/react-query";
+import {
+  getLeaveSummary,
+  getAllLeaves,
+  approveLeave,
+  rejectLeave,
+} from "../api/leave.api";
 
 export const useLeaveSummary = () =>
   useQuery({
@@ -24,17 +25,20 @@ export const useAllLeaves = () =>
     queryFn: getAllLeaves,
   });
 
-  export function useApproveLeave() {
-  const queryClient =
-    useQueryClient();
+export function useApproveLeave() {
+  const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: approveLeave,
+    mutationFn: ({
+      leaveId,
+      remarks,
+    }: {
+      leaveId: string;
+      remarks: string;
+    }) => approveLeave(leaveId, remarks),
 
     onSuccess: () => {
-      toast.success(
-        "Leave Approved"
-      );
+      toast.success("Leave Approved");
 
       queryClient.invalidateQueries({
         queryKey: ["all-leaves"],
@@ -55,16 +59,19 @@ export const useAllLeaves = () =>
 }
 
 export function useRejectLeave() {
-  const queryClient =
-    useQueryClient();
+  const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: rejectLeave,
+    mutationFn: ({
+      leaveId,
+      remarks,
+    }: {
+      leaveId: string;
+      remarks: string;
+    }) => rejectLeave(leaveId, remarks),
 
     onSuccess: () => {
-      toast.success(
-        "Leave Rejected"
-      );
+      toast.success("Leave Rejected");
 
       queryClient.invalidateQueries({
         queryKey: ["all-leaves"],

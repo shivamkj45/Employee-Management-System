@@ -7,7 +7,8 @@ import {
   Avatar,
 } from "@mui/material";
 
-import NotificationsIcon from "@mui/icons-material/Notifications";
+
+import NotificationBell from "../notification/NotificationBell";
 import UserMenu from "./UserMenu";
 import { useAuth } from "../../context/AuthContext";
 
@@ -32,7 +33,7 @@ function Navbar() {
         </Typography>
 
         <IconButton color="inherit">
-          <NotificationsIcon />
+          <NotificationBell />
         </IconButton>
 
         <Box

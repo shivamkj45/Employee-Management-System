@@ -41,3 +41,13 @@ export const createEmployee = async (
 
   return response.data;
 };
+
+export const getManagers = async () => {
+
+  const { data } = await api.get(
+    "/employees?role=manager&limit=100"
+  );
+
+  return data.data;
+
+};

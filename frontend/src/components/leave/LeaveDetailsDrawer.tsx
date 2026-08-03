@@ -1,12 +1,22 @@
 import {
   Avatar,
   Box,
+  Card,
+  CardContent,
   Chip,
   Divider,
   Drawer,
   Stack,
   Typography,
 } from "@mui/material";
+
+import EventIcon from "@mui/icons-material/Event";
+import PersonIcon from "@mui/icons-material/Person";
+import BusinessIcon from "@mui/icons-material/Business";
+import WorkIcon from "@mui/icons-material/Work";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
+import PendingIcon from "@mui/icons-material/Pending";
 
 interface Props {
   open: boolean;
@@ -28,6 +38,20 @@ function LeaveDetailsDrawer({
         (1000 * 60 * 60 * 24)
     ) + 1;
 
+  const statusColor =
+    leave.status === "Approved"
+      ? "success"
+      : leave.status === "Rejected"
+      ? "error"
+      : "warning";
+
+  const StatusIcon =
+    leave.status === "Approved"
+      ? CheckCircleIcon
+      : leave.status === "Rejected"
+      ? CancelIcon
+      : PendingIcon;
+
   return (
     <Drawer
       anchor="right"
@@ -36,8 +60,11 @@ function LeaveDetailsDrawer({
     >
       <Box
         sx={{
-          width: 420,
+          width: 430,
           p: 3,
+          bgcolor: "#fafafa",
+          height: "100%",
+          overflowY: "auto",
         }}
       >
         <Typography
@@ -48,217 +75,330 @@ function LeaveDetailsDrawer({
           Leave Details
         </Typography>
 
-        <Stack
-          direction="row"
-          spacing={2}
-          alignItems="center"
-          mb={3}
+        {/* Employee Card */}
+
+        <Card elevation={3}>
+          <CardContent>
+            <Stack
+              direction="row"
+              spacing={2}
+              alignItems="center"
+            >
+              <Avatar
+                src={leave.employee.profileImage}
+                sx={{
+                  width: 75,
+                  height: 75,
+                }}
+              />
+
+              <Box>
+                <Typography
+                  variant="h6"
+                  fontWeight={700}
+                >
+                  {leave.employee.firstName}{" "}
+                  {leave.employee.lastName}
+                </Typography>
+
+                <Typography color="text.secondary">
+                  {leave.employee.employeeId}
+                </Typography>
+
+                <Chip
+                  sx={{ mt: 1 }}
+                  color={statusColor}
+                  icon={<StatusIcon />}
+                  label={leave.status}
+                />
+              </Box>
+            </Stack>
+          </CardContent>
+        </Card>
+
+        {/* Employee Info */}
+
+        <Card
+          sx={{
+            mt: 3,
+          }}
         >
-          <Avatar
-            src={leave.employee.profileImage}
+          <CardContent>
+
+            <Typography
+              variant="h6"
+              mb={2}
+            >
+              Employee Information
+            </Typography>
+
+            <Stack spacing={2}>
+
+              <Stack direction="row" spacing={1}>
+                <PersonIcon
+                  color="primary"
+                />
+                <Typography>
+                  {leave.employee.firstName}{" "}
+                  {leave.employee.lastName}
+                </Typography>
+              </Stack>
+
+              <Stack direction="row" spacing={1}>
+                <BusinessIcon
+                  color="primary"
+                />
+                <Typography>
+                  {leave.employee.department
+                    ?.name ?? "--"}
+                </Typography>
+              </Stack>
+
+              <Stack direction="row" spacing={1}>
+                <WorkIcon
+                  color="primary"
+                />
+                <Typography>
+                  {leave.employee.designation}
+                </Typography>
+              </Stack>
+
+            </Stack>
+
+          </CardContent>
+        </Card>
+
+        {/* Leave Info */}
+
+        <Card
+          sx={{
+            mt: 3,
+          }}
+        >
+          <CardContent>
+
+            <Typography
+              variant="h6"
+              mb={2}
+            >
+              Leave Information
+            </Typography>
+
+            <Stack spacing={1.5}>
+
+              <Typography>
+                <strong>Leave Type:</strong>{" "}
+                {leave.leaveType}
+              </Typography>
+
+              <Typography>
+                <strong>Duration:</strong>{" "}
+                {new Date(
+                  leave.startDate
+                ).toLocaleDateString()}{" "}
+                -{" "}
+                {new Date(
+                  leave.endDate
+                ).toLocaleDateString()}
+              </Typography>
+
+              <Typography>
+                <strong>Total Days:</strong>{" "}
+                {totalDays}
+              </Typography>
+
+              <Typography>
+                <strong>Reason:</strong>{" "}
+                {leave.reason}
+              </Typography>
+
+              <Typography>
+                <strong>Applied On:</strong>{" "}
+                {new Date(
+                  leave.createdAt
+                ).toLocaleString()}
+              </Typography>
+
+            </Stack>
+
+          </CardContent>
+        </Card>
+
+        {/* Approval Section */}
+
+        {(leave.status === "Approved" ||
+          leave.status === "Rejected") && (
+
+          <Card
             sx={{
-              width: 72,
-              height: 72,
+              mt: 3,
             }}
-          />
+          >
+            <CardContent>
 
-          <Box>
+              <Typography
+                variant="h6"
+                mb={2}
+              >
+                {leave.status} Information
+              </Typography>
+
+              <Stack spacing={1.5}>
+
+                {leave.status === "Approved" && (
+                  <>
+                    <Typography>
+                      <strong>Approved By:</strong>{" "}
+                      {leave.approvedBy?.name ??
+                        leave.approvedBy?.employee
+  ? `${leave.approvedBy.employee.firstName} ${leave.approvedBy.employee.lastName}`
+  : leave.approvedBy?.email ?? "--"}
+                    </Typography>
+
+                    <Typography>
+                      <strong>Approved At:</strong>{" "}
+                      {leave.approvedAt
+                        ? new Date(
+                            leave.approvedAt
+                          ).toLocaleString()
+                        : "--"}
+                    </Typography>
+
+                    <Typography>
+                      <strong>Remarks:</strong>{" "}
+                      {leave.approvalRemarks ??
+                        "--"}
+                    </Typography>
+                  </>
+                )}
+
+                {leave.status === "Rejected" && (
+                  <>
+                    <Typography>
+                      <strong>Rejected By:</strong>{" "}
+                      {leave.rejectedBy?.name ??
+                        leave.rejectedBy?.employee
+  ? `${leave.rejectedBy.employee.firstName} ${leave.rejectedBy.employee.lastName}`
+  : leave.rejectedBy?.email ?? "--"}
+                    </Typography>
+
+                    <Typography>
+                      <strong>Rejected At:</strong>{" "}
+                      {leave.rejectedAt
+                        ? new Date(
+                            leave.rejectedAt
+                          ).toLocaleString()
+                        : "--"}
+                    </Typography>
+
+                    <Typography>
+                      <strong>Reason:</strong>{" "}
+                      {leave.rejectionRemarks ??
+                        "--"}
+                    </Typography>
+                  </>
+                )}
+
+              </Stack>
+
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Timeline */}
+
+        <Card
+          sx={{
+            mt: 3,
+            mb: 3,
+          }}
+        >
+          <CardContent>
+
             <Typography
-              fontWeight={700}
+              variant="h6"
+              mb={2}
             >
-              {leave.employee.firstName}{" "}
-              {leave.employee.lastName}
+              Timeline
             </Typography>
 
-            <Typography
-              color="text.secondary"
-            >
-              {leave.employee.employeeId}
-            </Typography>
-          </Box>
-        </Stack>
+            <Stack spacing={2}>
 
-        <Divider sx={{ mb: 2 }} />
+              <Stack
+                direction="row"
+                spacing={2}
+              >
+                <EventIcon color="primary" />
 
-        <Typography
-          variant="subtitle1"
-          fontWeight={700}
-          gutterBottom
-        >
-          Employee Information
-        </Typography>
+                <Box>
+                  <Typography fontWeight={600}>
+                    Leave Applied
+                  </Typography>
 
-        <Stack spacing={1.5}>
-          <Typography>
-            <strong>
-              Department:
-            </strong>{" "}
-            {
-              leave.employee.department
-                ?.name
-            }
-          </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                  >
+                    {new Date(
+                      leave.createdAt
+                    ).toLocaleString()}
+                  </Typography>
+                </Box>
+              </Stack>
 
-          <Typography>
-            <strong>
-              Designation:
-            </strong>{" "}
-            {
-              leave.employee
-                .designation
-            }
-          </Typography>
-        </Stack>
+              {leave.approvedAt && (
+                <Stack
+                  direction="row"
+                  spacing={2}
+                >
+                  <CheckCircleIcon color="success" />
 
-        <Divider
-          sx={{
-            my: 3,
-          }}
-        />
+                  <Box>
+                    <Typography fontWeight={600}>
+                      Leave Approved
+                    </Typography>
 
-        <Typography
-          variant="subtitle1"
-          fontWeight={700}
-          gutterBottom
-        >
-          Leave Information
-        </Typography>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                    >
+                      {new Date(
+                        leave.approvedAt
+                      ).toLocaleString()}
+                    </Typography>
+                  </Box>
+                </Stack>
+              )}
 
-        <Stack spacing={1.5}>
-          <Typography>
-            <strong>
-              Leave Type:
-            </strong>{" "}
-            {leave.leaveType}
-          </Typography>
+              {leave.rejectedAt && (
+                <Stack
+                  direction="row"
+                  spacing={2}
+                >
+                  <CancelIcon color="error" />
 
-          <Typography>
-            <strong>
-              Start Date:
-            </strong>{" "}
-            {new Date(
-              leave.startDate
-            ).toLocaleDateString()}
-          </Typography>
+                  <Box>
+                    <Typography fontWeight={600}>
+                      Leave Rejected
+                    </Typography>
 
-          <Typography>
-            <strong>
-              End Date:
-            </strong>{" "}
-            {new Date(
-              leave.endDate
-            ).toLocaleDateString()}
-          </Typography>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                    >
+                      {new Date(
+                        leave.rejectedAt
+                      ).toLocaleString()}
+                    </Typography>
+                  </Box>
+                </Stack>
+              )}
 
-          <Typography>
-            <strong>
-              Total Days:
-            </strong>{" "}
-            {totalDays}
-          </Typography>
+            </Stack>
 
-          <Typography>
-            <strong>
-              Reason:
-            </strong>{" "}
-            {leave.reason}
-          </Typography>
+          </CardContent>
+        </Card>
 
-          <Typography>
-            <strong>
-              Applied On:
-            </strong>{" "}
-            {new Date(
-              leave.createdAt
-            ).toLocaleString()}
-          </Typography>
-
-          <Box>
-            <strong>Status:</strong>{" "}
-            <Chip
-              label={leave.status}
-              color={
-                leave.status ===
-                "Approved"
-                  ? "success"
-                  : leave.status ===
-                    "Rejected"
-                  ? "error"
-                  : "warning"
-              }
-            />
-          </Box>
-        </Stack>
-
-        <Divider
-          sx={{
-            my: 3,
-          }}
-        />
-
-        <Typography
-          variant="subtitle1"
-          fontWeight={700}
-          gutterBottom
-        >
-          Approval Information
-        </Typography>
-
-        <Stack spacing={1.5}>
-          <Typography>
-            <strong>
-              Approved By:
-            </strong>{" "}
-            {leave.approvedBy
-              ?.email ?? "--"}
-          </Typography>
-
-          <Typography>
-            <strong>
-              Approved At:
-            </strong>{" "}
-            {leave.approvedAt
-              ? new Date(
-                  leave.approvedAt
-                ).toLocaleString()
-              : "--"}
-          </Typography>
-
-          <Typography>
-            <strong>
-              Approval Remarks:
-            </strong>{" "}
-            {leave.approvalRemarks ??
-              "--"}
-          </Typography>
-
-          <Typography>
-            <strong>
-              Rejected By:
-            </strong>{" "}
-            {leave.rejectedBy
-              ?.email ?? "--"}
-          </Typography>
-
-          <Typography>
-            <strong>
-              Rejected At:
-            </strong>{" "}
-            {leave.rejectedAt
-              ? new Date(
-                  leave.rejectedAt
-                ).toLocaleString()
-              : "--"}
-          </Typography>
-
-          <Typography>
-            <strong>
-              Rejection Remarks:
-            </strong>{" "}
-            {leave.rejectionRemarks ??
-              "--"}
-          </Typography>
-        </Stack>
       </Box>
     </Drawer>
   );

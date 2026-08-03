@@ -14,6 +14,9 @@ import EditEmployee from "../pages/Employees/EditEmployee";
 import AddEmployee from "../pages/Employees/AddEmployee";
 import AttendancePage from "../pages/Attendance/AttendancePage";
 import LeavePage from "../pages/Leave/LeavePage";
+import NotificationPage from "../pages/Notification/NotificationPage";
+import DepartmentPage from "../pages/Department/DepartmentPage";
+import AuditLogsPage from "../pages/Audit/AuditLogsPage";
 
 function AppRoutes() {
   return (
@@ -109,6 +112,33 @@ function AppRoutes() {
   element={
     <ProtectedRoute>
       <LeavePage />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/departments"
+  element={
+    <ProtectedRoute>
+      <DepartmentPage />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/notifications"
+  element={<NotificationPage />}
+/>
+<Route
+  path="/audit"
+  element={
+    <ProtectedRoute>
+      <AuditLogsPage />
+    </ProtectedRoute>
+  }
+/><Route
+  path="/audit"
+  element={
+    <ProtectedRoute>
+      <AuditLogsPage />
     </ProtectedRoute>
   }
 />

@@ -5,6 +5,7 @@ export const getLeaveSummary = async () => {
 
   return response.data.data;
 };
+
 export const getAllLeaves = async () => {
   const response = await api.get("/leave");
 
@@ -12,20 +13,28 @@ export const getAllLeaves = async () => {
 };
 
 export const approveLeave = async (
-  leaveId: string
+  leaveId: string,
+  remarks: string
 ) => {
   const response = await api.patch(
-    `/leave/${leaveId}/approve`
+    `/leave/${leaveId}/approve`,
+    {
+      remarks,
+    }
   );
 
   return response.data.data;
 };
 
 export const rejectLeave = async (
-  leaveId: string
+  leaveId: string,
+  remarks: string
 ) => {
   const response = await api.patch(
-    `/leave/${leaveId}/reject`
+    `/leave/${leaveId}/reject`,
+    {
+      remarks,
+    }
   );
 
   return response.data.data;

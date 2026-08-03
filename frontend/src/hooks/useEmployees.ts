@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { getEmployees,getEmployeeById } from "../api/employee.api";
-
+import { getManagers } from "../api/employee.api";
 export function useEmployees() {
   return useQuery({
     queryKey: ["employees"],
@@ -15,4 +15,16 @@ export function useEmployee(id: string) {
     queryFn: () => getEmployeeById(id),
     enabled: !!id,
   });
+}
+
+export function useManagers() {
+
+  return useQuery({
+
+    queryKey: ["managers"],
+
+    queryFn: getManagers,
+
+  });
+
 }

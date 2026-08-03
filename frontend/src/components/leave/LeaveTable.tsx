@@ -22,6 +22,8 @@ import {
   useApproveLeave,
   useRejectLeave,
 } from "../../hooks/useLeave";
+import LeaveApprovalDialog from "./LeaveApprovalDialog";
+import LeaveRejectDialog from "./LeaveRejectDialog";
 
 import LeaveDetailsDrawer from "./LeaveDetailsDrawer";
 
@@ -55,6 +57,15 @@ function LeaveTable({ leaves }: Props) {
 
   const [drawerOpen, setDrawerOpen] =
     useState(false);
+
+  const [approveDialogOpen, setApproveDialogOpen] =
+  useState(false);
+
+const [rejectDialogOpen, setRejectDialogOpen] =
+  useState(false);
+
+const [remarks, setRemarks] =
+  useState("");
 
   const handleSort = (property: string) => {
     const isAsc =
@@ -318,15 +329,15 @@ function LeaveTable({ leaves }: Props) {
                         <Tooltip title="Approve">
                           <IconButton
                             color="success"
-                            onClick={(
-                              e
-                            ) => {
-                              e.stopPropagation();
+                            onClick={(e) => {
+  e.stopPropagation();
 
-                              approveMutation.mutate(
-                                leave._id
-                              );
-                            }}
+  setSelectedLeave(leave);
+
+  setRemarks("");
+
+  setApproveDialogOpen(true);
+}}
                           >
                             <CheckCircleIcon />
                           </IconButton>
@@ -335,15 +346,15 @@ function LeaveTable({ leaves }: Props) {
                         <Tooltip title="Reject">
                           <IconButton
                             color="error"
-                            onClick={(
-                              e
-                            ) => {
-                              e.stopPropagation();
+                            onClick={(e) => {
+  e.stopPropagation();
 
-                              rejectMutation.mutate(
-                                leave._id
-                              );
-                            }}
+  setSelectedLeave(leave);
+
+  setRemarks("");
+
+  setRejectDialogOpen(true);
+}}
                           >
                             <CancelIcon />
                           </IconButton>
@@ -396,6 +407,51 @@ function LeaveTable({ leaves }: Props) {
         }
         leave={selectedLeave}
       />
+      <LeaveApprovalDialog
+  open={approveDialogOpen}
+  leave={selectedLeave}
+  remarks={remarks}
+  setRemarks={setRemarks}
+  onClose={() => {
+    setApproveDialogOpen(false);
+    setRemarks("");
+  }}
+  onApprove={() => {
+    if (!selectedLeave) return;
+
+    approveMutation.mutate({
+  leaveId: selectedLeave._id,
+  remarks,
+});
+
+    setApproveDialogOpen(false);
+    setRemarks("");
+    setSelectedLeave(null);
+  }}
+/>
+
+<LeaveRejectDialog
+  open={rejectDialogOpen}
+  leave={selectedLeave}
+  remarks={remarks}
+  setRemarks={setRemarks}
+  onClose={() => {
+    setRejectDialogOpen(false);
+    setRemarks("");
+  }}
+  onReject={() => {
+    if (!selectedLeave) return;
+
+    rejectMutation.mutate({
+  leaveId: selectedLeave._id,
+  remarks,
+});
+
+    setRejectDialogOpen(false);
+    setRemarks("");
+    setSelectedLeave(null);
+  }}
+/>
     </>
   );
 }
